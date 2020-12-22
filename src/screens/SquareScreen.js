@@ -1,67 +1,74 @@
-import React, { useState } from "react";
-import { View, Text, Button, StyleSheet } from "react-native";
+import React, { useReducer } from "react";
+import { View, StyleSheet } from "react-native";
 import ColorAdjuster from "../components/ColorAdjuster";
 
+const reducer = (state, action) => {
+  // state === { red: number, green: number, blue : number}
+  // action === { colorToChange: 'red' | 'green' | 'blue', amount: 15 || -15 }
+
+  switch (action.type) {
+    case "change_red":
+      return state.red + action.payload > 255 || state.red + action.payload < 0
+        ? state
+        : { ...state, red: state.red + action.payload };
+    case "change_green":
+      return state.green + action.payload > 255 ||
+        state.green + action.payload < 0
+        ? state
+        : { ...state, green: state.green + action.payload };
+    case "change_blue":
+      return state.blue + action.payload > 255 ||
+        state.blue + action.payload < 0
+        ? state
+        : { ...state, blue: state.blue + action.payload };
+    default:
+      return state;
+  }
+};
+
 const SquareScreen = () => {
-  const [red, setRed] = useState(0);
-  const [green, setGreen] = useState(0);
-  const [blue, setBlue] = useState(0);
+  const INCREMENT_AMOUNT = 50;
 
-  const COLOR_INCREMENT = 15;
-  const COLOR_DECREMENT = -15;
+  const [state, runMyReducer] = useReducer(reducer, {
+    red: 0,
+    green: 0,
+    blue: 0,
+  });
 
-  const setColor = (color, change) => {
-    switch (color) {
-      case "red": {
-        red + change > 255 || red + change < 0 ? null : setRed(red + change);
-        return;
-      }
-      case "green": {
-        green + change > 255 || green + change < 0
-          ? null
-          : setGreen(green + change);
-        return;
-      }
-      case "blue": {
-        blue + change > 255 || blue + change < 0
-          ? null
-          : setBlue(blue + change);
-        return;
-      }
-      default:
-        return;
-    }
-  };
+  const { red, green, blue } = state;
 
   return (
     <View>
       <ColorAdjuster
         color="Red"
         onMore={() => {
-          setColor("red", COLOR_INCREMENT);
+          runMyReducer({ type: "change_red", payload: INCREMENT_AMOUNT });
         }}
         onLess={() => {
-          setColor("red", COLOR_DECREMENT);
+          runMyReducer({ type: "change_red", payload: -1 * INCREMENT_AMOUNT });
         }}
       />
 
       <ColorAdjuster
         color="Green"
         onMore={() => {
-          setColor("green", COLOR_INCREMENT);
+          runMyReducer({ type: "change_green", payload: INCREMENT_AMOUNT });
         }}
         onLess={() => {
-          setColor("green", COLOR_DECREMENT);
+          runMyReducer({
+            type: "change_green",
+            payload: -1 * INCREMENT_AMOUNT,
+          });
         }}
       />
 
       <ColorAdjuster
         color="Blue"
         onMore={() => {
-          setColor("blue", COLOR_INCREMENT);
+          runMyReducer({ type: "change_blue", payload: INCREMENT_AMOUNT });
         }}
         onLess={() => {
-          setColor("blue", COLOR_DECREMENT);
+          runMyReducer({ type: "change_blue", payload: -1 * INCREMENT_AMOUNT });
         }}
       />
 
